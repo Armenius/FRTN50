@@ -1,0 +1,640 @@
+FRTN50 Notebook Audit — Questions 1–10
+
+Constraint:
+- Keep the tolerance.
+- Do NOT change dual_to_primal.
+
+1. Task 1 — essentially correct
+
+No mathematical change needed.
+
+Your convexity argument and CQ argument are correct. Since Q ≻ 0, you could actually say f is strictly convex, but Task 1 only asks for convexity, so what you have is enough.
+
+Only tiny cleanup:
+- "thus \iota_S is convex" → "Thus \(\iota_S\) is convex."
+- Remove the unnecessary parentheses around "\(Q\in\mathbb S_{++}^n\)".
+
+Verdict: keep.
+
+
+2. Task 2 — fix the final conjugate expression
+
+Your \(f^*\) calculation is correct.
+
+The problem is the final expression for \(\iota_S^*\). You currently use things like
+
+    b_i^T s_i
+
+and conditions like s >= 0. Both \(b_i\) and \(s_i\) are scalars, and the sign decision is made componentwise.
+
+Replace the final part with:
+
+Since the maximization can be done componentwise, for each component we have
+that if \(s_i \geq 0\) the maximum is attained at \(x_i=b_i\), while if
+\(s_i<0\) the maximum is attained at \(x_i=a_i\). Therefore
+
+\[
+\iota_S^*(s)
+=
+\sum_{i=1}^n
+\begin{cases}
+b_i s_i, & s_i\geq 0,\\
+a_i s_i, & s_i<0.
+\end{cases}
+\]
+
+That is the main Task 2 correction.
+
+
+3. Task 3 — dual is correct, but CQ-D is missing
+
+Your actual dual problem is correct:
+
+\[
+\min_\mu f^*(\mu)+\iota_S^*(-\mu).
+\]
+
+The piecewise expression after substituting \(s=-\mu\) is also correct.
+
+But the question explicitly asks you to show CQ-D, and you currently don't do that.
+
+Add after the dual:
+
+It remains to check CQ-D. Since \(Q\succ0\), \(f^*(\mu)\) is finite for every
+\(\mu\in\mathbb{R}^n\), so
+
+\[
+\operatorname{dom} f^*=\mathbb{R}^n.
+\]
+
+Also, since \(S\) is a bounded box, its support function \(\iota_S^*\) is finite
+for every point in \(\mathbb{R}^n\), and therefore
+
+\[
+\operatorname{dom}\iota_S^*=\mathbb{R}^n.
+\]
+
+The minus sign does not change the domain, so
+
+\[
+\operatorname{relint}(\operatorname{dom}f^*)
+\cap
+\operatorname{relint}(-\operatorname{dom}\iota_S^*)
+=
+\mathbb{R}^n
+\neq\emptyset.
+\]
+
+Hence CQ-D holds.
+
+This needs to be added.
+
+
+4. Task 4 — correct, but prove minimality for \(\beta^*\) too
+
+Everything you have about
+
+\[
+\beta=\lambda_{\max}(Q)
+\]
+
+and
+
+\[
+\beta^*=\frac1{\lambda_{\min}(Q)}
+\]
+
+is correct.
+
+You prove that \(\beta\) is the smallest possible constant, but the question asks this for both \(f\) and \(f^*\). Add the analogous argument for \(\beta^*\):
+
+The same argument shows that \(\beta^*\) is also the smallest possible
+smoothness constant. Let \(v_{\min}\neq0\) be an eigenvector of \(Q\)
+corresponding to \(\lambda_{\min}(Q)\). Then
+
+\[
+Q^{-1}v_{\min}
+=
+\frac{1}{\lambda_{\min}(Q)}v_{\min}
+=
+\beta^*v_{\min}.
+\]
+
+Choose \(s,t\) such that \(s-t=v_{\min}\). Then
+
+\[
+\|\nabla f^*(s)-\nabla f^*(t)\|_2
+=
+\|Q^{-1}v_{\min}\|_2
+=
+\beta^*\|v_{\min}\|_2.
+\]
+
+Thus any constant smaller than \(\beta^*\) violates the smoothness inequality,
+so \(\beta^*\) is the smallest possible smoothness constant.
+
+After that Task 4 is complete.
+
+
+5. Task 5 — good
+
+Your gradients and both proximal operators are correct.
+
+I would make the Moreau line slightly more explicit:
+
+\[
+\operatorname{prox}_{\gamma\iota_S^*}(z)
+=
+z-\gamma
+\operatorname{prox}_{\iota_S}(z/\gamma),
+\]
+
+which is valid here because scaling an indicator by a positive constant does not change it.
+
+Otherwise, no substantive change.
+
+
+6. Task 6 — important dual-sign correction
+
+The primal update is correct.
+
+There are two things to fix:
+
+First, your opening sentence says:
+
+"If we take our result from Task 6…"
+
+It should say Task 5.
+
+More importantly, the dual nonsmooth term is
+
+\[
+\iota_S^*(-\mu),
+\]
+
+not \(\iota_S^*(\mu)\). Your Task 10 code actually handles this correctly with
+
+    munew = -prox_boxconj(-w, a, b, gamma)
+
+so change the mathematics in Task 6 to agree with your Task 10 code.
+
+Replace the dual part with:
+
+For the dual problem, define
+
+\[
+w^k
+=
+\mu^k-\gamma Q^{-1}(\mu^k-q).
+\]
+
+Since the nonsmooth term in the dual problem is \(\iota_S^*(-\mu)\), we have
+
+\[
+\mu^{k+1}
+=
+-\operatorname{prox}_{\gamma\iota_S^*}(-w^k).
+\]
+
+Using the proximal operator from Task 5 gives
+
+\[
+\mu_i^{k+1}
+=
+\begin{cases}
+w_i^k+\gamma b_i, & w_i^k<-\gamma b_i,\\
+0, & -\gamma b_i\leq w_i^k\leq-\gamma a_i,\\
+w_i^k+\gamma a_i, & w_i^k>-\gamma a_i.
+\end{cases}
+\]
+
+This is one of the most important changes in the notebook.
+
+
+7. Task 7 — mathematically correct
+
+Your reasoning here is good.
+
+I would only make three small changes:
+- \mu* → \mu^\star
+- "we knot" → "we know"
+- When you use the subdifferential sum rule, explicitly tie it back to Task 1:
+
+"By the constraint qualification established in Task 1, the subdifferential sum rule applies…"
+
+Then continue with
+
+\[
+\partial(f+\iota_S)
+=
+\partial f+\partial\iota_S.
+\]
+
+No mathematical rewrite required.
+
+
+8. Task 8 — add tolerance to box, leave dual_to_primal alone
+
+Most of these functions are correct.
+
+The saved notebook currently defines:
+
+    def box(x,a,b):
+
+but later you call:
+
+    box(..., tol=...)
+
+That is why a fresh Run All fails.
+
+Since we're keeping the tolerance, change only box to:
+
+    def box(x, a, b, tol=0.0):
+        """
+        box(x,a,b) computes the indicator function of the box constraint [a,b]
+        """
+        if np.all(a - tol <= x) and np.all(x <= b + tol):
+            return 0
+        else:
+            return np.inf
+
+The default tol=0.0 means all your normal calls still behave exactly as before.
+
+Everything else in Task 8 is fine.
+
+dual_to_primal:
+
+Do not change it.
+
+Keep exactly:
+
+    def dual_to_primal(mu,Q,q,a,b):
+        ...
+
+as it currently is.
+
+We'll simply avoid using it where machine-precision errors make it return None.
+
+
+9. Task 9
+
+There are several small conceptual changes here.
+
+9a — use \(1.9/\beta\) as your actual choice
+
+Your current answer says \(2.2/\beta\) is best because it was quickest from \(x^0=0\).
+
+That is true for that one experiment, but \(2.2/\beta\) lies outside the guaranteed region and later fails for other starting points.
+
+Change the answer to something like:
+
+From the residual plot, larger step-sizes generally converge faster. Although \(2.2/\beta\) converges for this particular initial point, it is outside the theoretical convergence guarantee. Therefore, \(1.9/\beta\) is a good choice since it is close to the upper bound while still satisfying \(\gamma<2/\beta\).
+
+9b — change the explanation slightly
+
+Use:
+
+Yes. The experiments are consistent with the upper bound \(\gamma<2/\beta\). A step-size slightly larger than the bound may still converge for a particular initial point, since the bound is a sufficient guarantee rather than an exact divergence threshold. However, the later experiments show that \(2.2/\beta\) is not reliable for different initial points.
+
+This correctly explains why your first \(2.2/\beta\) experiment does not contradict the theorem.
+
+9c — only use the \(1.9/\beta\) experiment here
+
+You currently have one cell with \(2.2/\beta\), then another with \(1.9/\beta\).
+
+For this question, remove the \(2.2/\beta\) test cell from 9c. You've already discussed that behavior in 9b.
+
+Keep the \(1.9/\beta\) test.
+
+For reproducibility, also seed your random points:
+
+    rng = np.random.default_rng(0)
+
+    x0s = [
+        np.zeros(len(q)),
+        np.ones(len(q)),
+        rng.uniform(a, b),
+        rng.uniform(a, b),
+        rng.uniform(a, b),
+        rng.uniform(a, b),
+    ]
+
+    gamma = 1.9 / beta
+
+Then answer:
+
+For the valid step-size \(\gamma=1.9/\beta\), all tested initial points converge to the same final point. Thus the initial point does not affect the final solution, although it can affect the convergence path.
+
+9d — correct as written
+
+Keep it.
+
+The strict convexity argument is exactly the right theoretical explanation.
+
+9e — simplify the test
+
+Your loop works, but this is cleaner and uses the tolerance consistently:
+
+    x_final = results[1.9]
+    tolerance = 1e-14
+
+    print("x_final in S:",
+          np.isfinite(box(x_final, a, b, tol=tolerance)))
+
+Then add:
+
+Yes, \(x^{\text{final}}\in S\).
+
+9f — your current conclusion is too strong
+
+This is an important correction.
+
+The proximal step always projects onto \(S\), so
+
+\[
+x^{k+1}\in S.
+\]
+
+But the algorithm allows an arbitrary initial point \(x^0\), so \(x^0\) itself does not necessarily belong to \(S\).
+
+You already use np.ones(len(q)) as an initial point, which is outside this box.
+
+Use something like:
+
+    x0_test = np.ones(len(q))
+
+    _, xs_test, _ = prox_grad_method(
+        x0_test, Q, q, a, b, 1.9 / beta
+    )
+
+    print("x0 in S:",
+          np.isfinite(box(xs_test[0], a, b, tol=1e-14)))
+
+    print("All iterates for k >= 1 in S:",
+          all(np.isfinite(box(x, a, b, tol=1e-14))
+              for x in xs_test[1:]))
+
+Your written answer should be:
+
+The initial point \(x^0\) does not have to be in \(S\), since it can be chosen arbitrarily. However, every subsequent iterate is obtained using \(\operatorname{prox}_{\gamma\iota_S}\), which is the projection onto \(S\). Therefore \(x^k\in S\) for every \(k\geq1\).
+
+That is the correct theoretical answer.
+
+
+10. Task 10
+
+This section needs the most cleanup.
+
+10a — your dual algorithm is correct
+
+This line is correct:
+
+    munew = -prox_boxconj(-w, a, b, gamma)
+
+Do not change it.
+
+Your smoothness parameter is also correct:
+
+    beta_conj = np.linalg.norm(np.linalg.inv(Q), 2)
+
+Your answer should be more explicit:
+
+From Task 4, \(f^*\) is \(\beta^*\)-smooth with
+
+\[
+\beta^*=\|Q^{-1}\|_2.
+\]
+
+Therefore proximal gradient is guaranteed to converge for
+
+\[
+0<\gamma<\frac{2}{\beta^*}.
+\]
+
+The residual plot shows that larger valid step-sizes converge faster. We therefore choose \(\gamma=1.9/\beta^*\).
+
+Do not say \(2/\beta^*\) is generally safe just because it happened to converge here; the theorem uses strict <.
+
+Also fix the ylabel:
+
+    plt.ylabel(r"$\|\mu^{k+1}-\mu^k\|_2$")
+
+Important state fix after 10a
+
+After your step-size experiment, explicitly generate the trajectory that all later questions will use:
+
+    gamma_dual = 1.9 / beta_conj
+
+    mu_final, allmu, dual_residuals = prox_grad_method_conj(
+        mu0, Q, q, a, b, gamma_dual
+    )
+
+This is important because right now allmu is just whatever happened to be generated by the last iteration of the step-size loop.
+
+
+10b — use solve, and remove the explanation about dual_to_primal
+
+Change the code to:
+
+    x_final = results[1.9]
+    x_hat_final = np.linalg.solve(Q, mu_final - q)
+
+    print(np.allclose(x_final, x_hat_final))
+    print("Maximum difference:",
+          np.max(np.abs(x_final - x_hat_final)))
+
+Your current result is approximately
+
+\[
+2.3\times10^{-15}
+\]
+
+maximum difference, which is just numerical precision.
+
+Then simply write:
+
+Yes. The two points are equal up to numerical precision, with a maximum difference of approximately \(2.3\cdot10^{-15}\).
+
+Delete this current paragraph:
+
+"We did not use the dual_to_primal because it gives None…"
+
+You don't need to defend that. You're directly using the expression derived in Task 7, which is exactly what the question asks for.
+
+
+10c — replace the entire current code cell
+
+There are two problems right now:
+
+1. You loop 20 times but call box on the entire vector every time, so it prints the same answer 20 times.
+2. You then do:
+
+       x_star_final = dual_to_primal(...)
+
+   which gives None because of a tiny floating-point boundary violation, causing your NoneType error.
+
+Do not call dual_to_primal here. Leave that function unchanged.
+
+Use:
+
+    tolerance = 1e-14
+
+    print(
+        "x_hat_final is in S:",
+        np.isfinite(box(x_hat_final, a, b, tol=tolerance))
+    )
+
+    lower_violation = np.maximum(a - x_hat_final, 0)
+    upper_violation = np.maximum(x_hat_final - b, 0)
+
+    print(
+        "Maximum constraint violation:",
+        max(np.max(lower_violation), np.max(upper_violation))
+    )
+
+For your current result, the maximum raw violation is only about
+
+\[
+1.1\times10^{-16},
+\]
+
+so with \(10^{-14}\) tolerance it is clearly in the box numerically.
+
+Written answer:
+
+Yes. Up to numerical precision, \(\hat{x}^{\text{final}}\in S\). The maximum constraint violation is on the order of \(10^{-16}\), which is below the chosen numerical tolerance.
+
+
+10d — initialize the counters and correct the conclusion
+
+Your current cell fails in a fresh kernel because these variables are never initialized:
+
+    num_in_S
+    num_violations
+
+Use:
+
+    tolerance = 1e-14
+    num_in_S = 0
+    num_violations = 0
+
+    for mu in allmu:
+        x_hat = np.linalg.solve(Q, mu - q)
+
+        if np.isfinite(box(x_hat, a, b, tol=tolerance)):
+            num_in_S += 1
+        else:
+            num_violations += 1
+
+    print("x_hat in S:", num_in_S)
+    print("x_hat not in S:", num_violations)
+
+More importantly, your comment
+
+    # all the xhatk are NOT in S !!
+
+is wrong.
+
+The correct conclusion is:
+
+No, the extracted primal iterates do not always satisfy the constraint. The relation
+
+\[
+\hat{x}^k=Q^{-1}(\mu^k-q)
+\]
+
+guarantees feasibility only when the dual point satisfies the full optimality conditions. During the dual iterations, \(\mu^k\) is generally not optimal, so \(\hat{x}^k\) may lie outside \(S\). As the dual method converges, the extracted primal points approach the feasible primal optimum.
+
+With your current deterministic problem and \(10^{-14}\) tolerance, a clean run with \(1.9/\beta^*\) gives many infeasible early iterates and feasible iterates near convergence. That is exactly the behavior you should report.
+
+
+10e — plot is basically right; add the interpretation
+
+Since you now created allmu explicitly in 10a, don't rerun the method here.
+
+Use:
+
+    f_vals = []
+
+    for mu in allmu:
+        x_hat = np.linalg.solve(Q, mu - q)
+        f_vals.append(quad(x_hat, Q, q))
+
+    plt.plot(f_vals[:500])
+    plt.xlabel("Iteration")
+    plt.ylabel(r"$f(\hat{x}^k)$")
+    plt.grid()
+    plt.show()
+
+Delete the unrelated comment:
+
+    # all the xhatk are NOT in S !!
+
+Then write:
+
+The values \(f(\hat{x}^k)\) are not monotone. They oscillate strongly during the first iterations and then converge to the value at the primal optimum. For this problem the limiting value is approximately \(-2.674\).
+
+That is what your data actually does.
+
+
+10f — code will work once box has tolerance, but explain the result
+
+Use:
+
+    objective_vals = []
+
+    for mu in allmu:
+        x_hat = np.linalg.solve(Q, mu - q)
+
+        objective_vals.append(
+            quad(x_hat, Q, q)
+            + box(x_hat, a, b, tol=1e-14)
+        )
+
+    objective_vals = np.array(objective_vals)
+    finite = np.isfinite(objective_vals)
+
+    print("Finite objective values:", np.sum(finite))
+    print("Infinite objective values:", np.sum(~finite))
+
+You can also plot the finite part:
+
+    plt.plot(np.where(finite)[0], objective_vals[finite])
+    plt.xlabel("Iteration")
+    plt.ylabel(
+        r"$f(\hat{x}^k)+\iota_S(\hat{x}^k)$"
+    )
+    plt.grid()
+    plt.show()
+
+Written explanation:
+
+Whenever \(\hat{x}^k\notin S\),
+
+\[
+\iota_S(\hat{x}^k)=\infty,
+\]
+
+so the complete primal objective is infinite. Once the extracted primal iterates become feasible, the indicator is zero and the objective equals \(f(\hat{x}^k)\), which approaches the optimal primal objective value.
+
+That is the main point of 10f.
+
+
+FINAL PRIORITY LIST
+
+The things I would definitely fix before hand-in are:
+
+1. Task 2: componentwise \(s_i\), remove the incorrect transposes.
+2. Task 3: add CQ-D.
+3. Task 4: prove minimality of \(\beta^*\).
+4. Task 6: fix the minus-sign / dual prox derivation.
+5. Task 8: add optional tolerance to box.
+6. Task 9a–c: settle on \(1.9/\beta\), not \(2.2/\beta\).
+7. Task 9f: distinguish \(x^0\) from \(x^k,\ k\ge1\).
+8. Task 10: explicitly store the \(1.9/\beta^*\) dual trajectory and use it throughout.
+9. Task 10c: remove the dual_to_primal call entirely; do not modify the function itself.
+10. Task 10d: initialize counters.
+11. Task 10e/f: add actual written interpretations, not only plots/counts.
+12. After all edits, do Restart Kernel → Run All before exporting the PDF.
+
+The biggest mathematical correction is Task 6; the biggest code cleanup is Task 10c–f.
